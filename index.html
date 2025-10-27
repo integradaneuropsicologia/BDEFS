@@ -30,7 +30,11 @@
   .info b{display:block;margin-bottom:4px;color:#e2e8f0}
 
   /* ===== ITENS ===== */
-  .item{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px;background:rgba(0,0,0,.18);margin-bottom:12px}
+  .item{
+    display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;
+    border:1px solid var(--line);border-radius:12px;padding:12px;
+    background:rgba(0,0,0,.18);margin-bottom:12px
+  }
   .stem{font-size:1rem}
 
   /* Escala em botões (1..4) */
@@ -44,7 +48,9 @@
     padding:8px 10px; border-radius:999px; cursor:pointer; font-size:.9rem;
     color:var(--muted); transition:all .15s ease;
   }
-  .seg input:checked + .opt{ background:#1f2a44; color:#fff; box-shadow:0 0 0 1px #4f70ff inset }
+  .seg input:checked + .opt{
+    background:#1f2a44; color:#fff; box-shadow:0 0 0 1px #4f70ff inset
+  }
   .seg .opt:hover{ background:var(--chipHover); color:#fff }
 
   @media (max-width:560px){
@@ -56,7 +62,10 @@
   .pill{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid var(--line);background:rgba(0,0,0,.25);font-size:.86rem}
 
   /* Ações */
-  .btn{display:inline-flex;align-items:center;gap:10px;background:var(--pri);border:none;color:#fff;padding:12px 16px;border-radius:12px;cursor:pointer;font-weight:600}
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;background:var(--pri);
+    border:none;color:#fff;padding:12px 16px;border-radius:12px;cursor:pointer;font-weight:600
+  }
   .btn.ok{background:var(--ok)}
   .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
   .btn:disabled{opacity:.6;cursor:not-allowed}
@@ -68,8 +77,14 @@
   .warnbox{background:#3a2903;border:1px solid #885e09;color:#ffe6b0}
 
   /* Progresso */
-  .progress{height:10px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:999px;overflow:hidden}
-  .bar{height:100%;width:0%;background:linear-gradient(90deg, #6d28d9, #10b981)}
+  .progress{
+    height:10px;background:rgba(255,255,255,.05);
+    border:1px solid var(--line);border-radius:999px;overflow:hidden
+  }
+  .bar{
+    height:100%;width:0%;
+    background:linear-gradient(90deg, #6d28d9, #10b981)
+  }
 </style>
 </head>
 <body>
@@ -112,23 +127,68 @@
 <script>
 /* ===== CONFIG ===== */
 const SHEETDB_BASE = "https://sheetdb.io/api/v1/8pmdh33s9fvy8";
-const SHEETS = { PATIENTS:"Patients", TOKENS:"LinkTokens", SCORES:"Scores_BDEFS" }; // ajuste "SCORES" se a aba tiver outro nome
+const SHEETS = { PATIENTS:"Patients", TOKENS:"LinkTokens", SCORES:"Scores_BDEFS" }; // ajuste se necessário
 const CODE = "BDEFS";
 const PORTAL_URL = "https://integradaneuropsicologia.github.io/formularios/";
-const RELEASE_KEYS = ["BDEFS"]; // ajuste para a coluna de liberação que você usa
+const RELEASE_KEYS = ["BDEFS"]; // coluna de liberação no Patients ("sim")
 
 /* ===== HELPERS ===== */
 const $ = s => document.querySelector(s);
 const onlyDigits = s => (s||"").replace(/\D+/g,"");
 const qs = k => new URLSearchParams(location.search).get(k) || "";
-function setBox(id, text, kind="ok"){ const el=$(id); if(!el) return; el.textContent = text; el.className = "msg " + (kind==="ok"?"okbox":kind==="warn"?"warnbox":"errbox"); el.style.display = "block"; }
-function hideBox(id){ const el=$(id); if(el){ el.style.display="none"; el.textContent=""; } }
-function maskCPF(cpf){ const d = onlyDigits(cpf||""); if(d.length!==11) return cpf||""; return `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6,9)}-${d.slice(9)}`; }
-function fmtDateISO(iso){ if(!iso) return ""; const [y,m,d] = String(iso||"").split("-"); if(!y||!m||!d) return iso; return `${d}/${m}/${y}`; }
-async function GET(url){ const r=await fetch(url); if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); }
-async function sheetSearch(sheet, params){ const usp = new URLSearchParams(params); return GET(`${SHEETDB_BASE}/search?sheet=${encodeURIComponent(sheet)}&${usp.toString()}`); }
-async function sheetCreate(sheet, row){ const r = await fetch(`${SHEETDB_BASE}?sheet=${encodeURIComponent(sheet)}`, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ data:[row] }) }); if(!r.ok) throw new Error(await r.text()); return r.json(); }
-async function sheetPatchBy(sheet, column, value, data){ const r = await fetch(`${SHEETDB_BASE}/${encodeURIComponent(column)}/${encodeURIComponent(value)}?sheet=${encodeURIComponent(sheet)}`, { method:"PATCH", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ data }) }); if(!r.ok) throw new Error(await r.text()); return r.json(); }
+function setBox(id, text, kind="ok"){
+  const el=$(id); if(!el) return;
+  el.textContent = text;
+  el.className = "msg " + (kind==="ok"?"okbox":kind==="warn"?"warnbox":"errbox");
+  el.style.display = "block";
+}
+function hideBox(id){
+  const el=$(id); if(el){
+    el.style.display="none";
+    el.textContent="";
+  }
+}
+function maskCPF(cpf){
+  const d = onlyDigits(cpf||"");
+  if(d.length!==11) return cpf||"";
+  return `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6,9)}-${d.slice(9)}`;
+}
+function fmtDateISO(iso){
+  if(!iso) return "";
+  const [y,m,d] = String(iso||"").split("-");
+  if(!y||!m||!d) return iso;
+  return `${d}/${m}/${y}`;
+}
+async function GET(url){
+  const r=await fetch(url);
+  if(!r.ok) throw new Error("HTTP "+r.status);
+  return r.json();
+}
+async function sheetSearch(sheet, params){
+  const usp = new URLSearchParams(params);
+  return GET(`${SHEETDB_BASE}/search?sheet=${encodeURIComponent(sheet)}&${usp.toString()}`);
+}
+async function sheetCreate(sheet, row){
+  const r = await fetch(`${SHEETDB_BASE}?sheet=${encodeURIComponent(sheet)}`, {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ data:[row] })
+  });
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function sheetPatchBy(sheet, column, value, data){
+  const r = await fetch(
+    `${SHEETDB_BASE}/${encodeURIComponent(column)}/${encodeURIComponent(value)}?sheet=${encodeURIComponent(sheet)}`,
+    {
+      method:"PATCH",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ data })
+    }
+  );
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
 function goPortalWithToken(){
   const TOKEN = qs("token");
   try{
@@ -141,7 +201,15 @@ function goPortalWithToken(){
   }
 }
 
+/* ===== ESCALA / OPÇÕES ===== */
+const CHOICES = [
+  {v:1, label:"Raramente"},
+  {v:2, label:"Às vezes"},
+  {v:3, label:"Frequentemente"},
+  {v:4, label:"Muito frequentemente"}
+];
 
+/* ===== ITENS ===== */
 const ITEMS = [
   "Procrastino ou adio fazer as coisas até o último minuto.",
   "Tenho pouca noção de tempo.",
@@ -234,8 +302,7 @@ const ITEMS = [
   "Não consigo ver o lado positivo de fatos negativos quando sinto emoções fortes."
 ].map((t,i)=>({ text: `${i+1}. ${t}` }));
 
-
-
+/* Seções (títulos) */
 const SECTION_LABELS = {
   1:  "Seção 1 — Gerenciamento de tempo",
   22: "Seção 2 — Organização / Resolução de problemas",
@@ -277,28 +344,29 @@ function renderQuestions(){
     stem.id = `s${qn}`;
     stem.textContent = it.text;
 
-    // escala como "segmented control" 1..4
     const scale = document.createElement('div');
     scale.className = 'scale';
 
     const seg = document.createElement('div');
     seg.className = 'seg';
 
-    [
-      {v:1, label:"Raramente"},
-      {v:2, label:"Às vezes"},
-      {v:3, label:"Frequentemente"},
-      {v:4, label:"Muito frequentemente"}
-    ].forEach(({v,label})=>{
+    CHOICES.forEach(({v,label})=>{
       const id = `q${qn}_${v}`;
       const inp = document.createElement("input");
-      inp.type = "radio"; inp.name = `q${qn}`; inp.id = id; inp.value = String(v);
-      inp.required = true; inp.setAttribute("aria-labelledby", `s${qn}`);
+      inp.type = "radio";
+      inp.name = `q${qn}`;
+      inp.id = id;
+      inp.value = String(v);
+      inp.required = true;
+      inp.setAttribute("aria-labelledby", `s${qn}`);
 
       const lab = document.createElement("label");
-      lab.className = "opt"; lab.setAttribute("for", id); lab.textContent = label;
+      lab.className = "opt";
+      lab.setAttribute("for", id);
+      lab.textContent = label;
 
-      seg.appendChild(inp); seg.appendChild(lab);
+      seg.appendChild(inp);
+      seg.appendChild(lab);
     });
 
     scale.appendChild(seg);
@@ -315,7 +383,10 @@ const STORAGE_KEY = `BDEFS_${TOKEN||'anon'}`;
 /* ===== BOOT ===== */
 (async function boot(){
   try{
-    if(!TOKEN){ setBox("#alert","Link inválido (sem token). Solicite um novo link.","err"); return; }
+    if(!TOKEN){
+      setBox("#alert","Link inválido (sem token). Solicite um novo link.","err");
+      return;
+    }
 
     const trows = await sheetSearch(SHEETS.TOKENS, { token: TOKEN });
     if(!trows || !trows.length) throw new Error("Token inválido ou expirado.");
@@ -330,7 +401,10 @@ const STORAGE_KEY = `BDEFS_${TOKEN||'anon'}`;
     patient = prows[0];
 
     const isAllowed = RELEASE_KEYS.some(k => String(patient[k]||"").trim().toLowerCase()==="sim");
-    if(!isAllowed){ setBox("#alert","Este formulário não está liberado para você.","err"); return; }
+    if(!isAllowed){
+      setBox("#alert","Este formulário não está liberado para você.","err");
+      return;
+    }
 
     // Já respondeu?
     const doneKeys = RELEASE_KEYS.map(k => `${k}_FEITO`);
@@ -338,7 +412,8 @@ const STORAGE_KEY = `BDEFS_${TOKEN||'anon'}`;
     const already = await sheetSearch(SHEETS.SCORES, { cpf: CPF, code: CODE });
     if(anyDoneFlag || (already && already.length)){
       setBox("#alert","Você já respondeu este formulário. Voltando ao portal…","ok");
-      setTimeout(goPortalWithToken, 1200); return;
+      setTimeout(goPortalWithToken, 1200);
+      return;
     }
 
     // Render
@@ -383,7 +458,11 @@ function saveDraft(){
     const sel = document.querySelector(`input[name="q${qn}"]:checked`);
     if(sel) data[`q${qn}`] = Number(sel.value);
   }
-  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }catch(e){ console.warn("Sem espaço para salvar rascunho"); }
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }catch(e){
+    console.warn("Sem espaço para salvar rascunho");
+  }
 }
 function restoreDraft(){
   try{
@@ -398,13 +477,36 @@ function restoreDraft(){
 }
 function clearDraft(){ localStorage.removeItem(STORAGE_KEY); }
 
-function countAnswered(){ let c=0; for(let i=1;i<=ITEMS.length;i++){ const qn=String(i).padStart(2,'0'); if(document.querySelector(`input[name="q${qn}"]:checked`)) c++; } return c; }
-function updateProgress(){ const answered = countAnswered(); const total = ITEMS.length; $("#progressText").textContent = `Progresso: ${answered}/${total}`; $("#bar").style.width = `${(answered/total)*100}%`; }
+function countAnswered(){
+  let c=0;
+  for(let i=1;i<=ITEMS.length;i++){
+    const qn=String(i).padStart(2,'0');
+    if(document.querySelector(`input[name="q${qn}"]:checked`)) c++;
+  }
+  return c;
+}
+function updateProgress(){
+  const answered = countAnswered();
+  const total = ITEMS.length;
+  $("#progressText").textContent = `Progresso: ${answered}/${total}`;
+  $("#bar").style.width = `${(answered/total)*100}%`;
+}
 
 /* ===== EVENTOS DE UI ===== */
-addEventListener('change', (e)=>{ if(e.target && e.target.matches('input[type="radio"][name^="q"]')){ saveDraft(); updateProgress(); } });
-$("#btnSave").addEventListener('click', ()=>{ saveDraft(); setBox('#msg','Rascunho salvo neste dispositivo.','ok'); });
-$("#clearDraft").addEventListener('click', ()=>{ clearDraft(); setBox('#msg','Rascunho apagado.','warn'); });
+addEventListener('change', (e)=>{
+  if(e.target && e.target.matches('input[type="radio"][name^="q"]')){
+    saveDraft();
+    updateProgress();
+  }
+});
+$("#btnSave").addEventListener('click', ()=>{
+  saveDraft();
+  setBox('#msg','Rascunho salvo neste dispositivo.','ok');
+});
+$("#clearDraft").addEventListener('click', ()=>{
+  clearDraft();
+  setBox('#msg','Rascunho apagado.','warn');
+});
 
 /* ===== UTIL ===== */
 function sumSet(indices){
@@ -429,12 +531,20 @@ function count34(indices){
 /* ===== SUBMIT ===== */
 let sending=false;
 $("#form").addEventListener("submit", async (e)=>{
-  e.preventDefault(); if(sending) return; sending = true; hideBox("#msg");
-  const btn = $("#btnSubmit"); const originalText = btn.textContent; btn.disabled = true; btn.textContent = "Enviando…";
+  e.preventDefault();
+  if(sending) return;
+  sending = true;
+  hideBox("#msg");
+
+  const btn = $("#btnSubmit");
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "Enviando…";
+
   try{
     if(!patient) throw new Error("Sessão inválida. Recarregue o link.");
 
-    // Validação: todas respondidas
+    // Validar: tudo respondido
     for(let i=1;i<=ITEMS.length;i++){
       const qn = String(i).padStart(2,'0');
       const sel = document.querySelector(`input[name="q${qn}"]:checked`);
@@ -443,6 +553,21 @@ $("#form").addEventListener("submit", async (e)=>{
         if(row) row.scrollIntoView({behavior:'smooth', block:'center'});
         throw new Error(`Responda a questão ${i}.`);
       }
+    }
+
+    // Montar qaList para salvar na planilha
+    const qaList = [];
+    for(let i=1;i<=ITEMS.length;i++){
+      const qn = String(i).padStart(2,'0');
+      const sel = document.querySelector(`input[name="q${qn}"]:checked`);
+      const rawVal = Number(sel.value); // 1..4
+      const choice = CHOICES.find(c => c.v === rawVal) || {label:""};
+      qaList.push({
+        n: i,
+        q: ITEMS[i-1].text, // inclui "n. texto"
+        raw: rawVal,
+        label: choice.label
+      });
     }
 
     // Escores
@@ -475,13 +600,19 @@ $("#form").addEventListener("submit", async (e)=>{
       submitted_at: new Date().toISOString(),
       total: total,
       categoria: categoria_csv,
-      metrics: ""
+      metrics: "",
+      questions: JSON.stringify(qaList), // <-- perguntas e respostas marcadas
+      
     });
 
     // Marca como feito
     const doneUpdates = {};
-    RELEASE_KEYS.map(k=>`${k}_FEITO`).forEach(k=>{ if(k in patient) doneUpdates[k] = "sim"; });
-    if(Object.keys(doneUpdates).length===0) doneUpdates[`${RELEASE_KEYS[0]}_FEITO`] = "sim";
+    RELEASE_KEYS.map(k=>`${k}_FEITO`).forEach(k=>{
+      if(k in patient) doneUpdates[k] = "sim";
+    });
+    if(Object.keys(doneUpdates).length===0){
+      doneUpdates[`${RELEASE_KEYS[0]}_FEITO`] = "sim";
+    }
     await sheetPatchBy(SHEETS.PATIENTS, "cpf", patient.cpf, doneUpdates);
 
     clearDraft();
@@ -491,7 +622,9 @@ $("#form").addEventListener("submit", async (e)=>{
   }catch(err){
     console.error(err);
     setBox("#msg", err.message || "Falha ao enviar. Tente novamente.", "err");
-    sending = false; btn.disabled = false; btn.textContent = originalText;
+    sending = false;
+    btn.disabled = false;
+    btn.textContent = originalText;
   }
 });
 </script>
