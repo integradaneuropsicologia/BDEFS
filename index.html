@@ -586,9 +586,10 @@ $("#form").addEventListener("submit", async (e)=>{
       `autocontrole=${autoC}`,
       `motivacao=${motivo}`,
       `regulacao_emocional=${regEmo}`,
+       `Escala de Disfunção executiva total=${total}`,
       `Indice de funções executivas para TDAH=${ifeTda}`,
-      `Sintomas de disfunção executiva=${sintomas34}`,
-      `Escala de Disfunção executiva total=${total}`
+      `Sintomas de disfunção executiva=${sintomas34}`
+     
     ].join(',');
 
     await sheetCreate(SHEETS.SCORES, {
